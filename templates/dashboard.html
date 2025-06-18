@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceAI - Professional Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --danger-gradient: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+            --warning-gradient: linear-gradient(135deg, #FDBB2D 0%, #22C1C3 100%);
+            --dark-bg: #0f1419;
+            --card-bg: #1a202c;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: var(--primary-gradient) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            border: none;
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .hero-section {
+            background: var(--primary-gradient);
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,0 0,100 1000,80 1000,0"/></svg>');
+            background-size: cover;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            height: 400px;
+        }
+
+        .news-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .news-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .sentiment-positive {
+            color: #38ef7d;
+        }
+
+        .sentiment-negative {
+            color: #fc466b;
+        }
+
+        .sentiment-neutral {
+            color: #FDBB2D;
+        }
+
+        .stock-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .stock-row:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .price-positive {
+            color: #38ef7d;
+        }
+
+        .price-negative {
+            color: #fc466b;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-gradient {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #38ef7d;
+            display: inline-block;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 239, 125, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(56, 239, 125, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 239, 125, 0); }
+        }
+
+        .scrollbar-custom {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-line me-2"></i>FinanceAI
+            </a>
+            <div class="d-flex">
+                <span class="status-indicator"></span>
+                <span class="text-white me-3">Live Data</span>
+                <button class="btn btn-outline-light btn-sm me-2" onclick="window.location.href='/portfolio'">
+                    <i class="fas fa-briefcase"></i> Portfolio
+                </button>
+                <button class="btn btn-gradient" onclick="refreshAllData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <div class="row text-center">
+                <div class="col-12">
+                    <h1 class="display-4 fw-bold text-white mb-3">Professional Finance Dashboard</h1>
+                    <p class="lead text-white-50">Real-time market data • AI-powered insights • Smart portfolio management</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container-fluid">
+        <!-- Stats Overview -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number" id="totalStocks">--</div>
+                            <div class="stat-label">Active Stocks</div>
+                        </div>
+                        <i class="fas fa-chart-bar fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number" id="totalNews">--</div>
+                            <div class="stat-label">News Articles</div>
+                        </div>
+                        <i class="fas fa-newspaper fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number" id="avgSentiment">--</div>
+                            <div class="stat-label">Avg Sentiment</div>
+                        </div>
+                        <i class="fas fa-brain fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number" id="topGainer">--</div>
+                            <div class="stat-label">Top Gainer</div>
+                        </div>
+                        <i class="fas fa-rocket fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <h3 class="section-title"><i class="fas fa-chart-line me-2"></i>Market Performance</h3>
+                    <canvas id="marketChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <h3 class="section-title"><i class="fas fa-pie-chart me-2"></i>Sentiment Analysis</h3>
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tables Row -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="section-title mb-0"><i class="fas fa-list me-2"></i>Live Stock Data</h3>
+                        <span class="badge bg-primary">Real-time</span>
+                    </div>
+                    <div class="scrollbar-custom" id="stocksContainer">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner"></div>
+                            <p class="mt-2 text-muted">Loading stock data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="section-title mb-0"><i class="fas fa-rss me-2"></i>Financial News</h3>
+                        <span class="badge bg-success">AI Analyzed</span>
+                    </div>
+                    <div class="scrollbar-custom" id="newsContainer">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner"></div>
+                            <p class="mt-2 text-muted">Loading news...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let marketChart, sentimentChart;
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+            setupCharts();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(loadAllData, 30000);
+        });
+
+        async function loadAllData() {
+            await Promise.all([
+                loadStockData(),
+                loadNewsData(),
+                loadStats()
+            ]);
+        }
+
+        async function loadStockData() {
+            try {
+                const response = await fetch('/api/stocks/prices');
+                const stocks = await response.json();
+                
+                document.getElementById('totalStocks').textContent = stocks.length;
+                
+                let html = '';
+                stocks.slice(0, 20).forEach(stock => {
+                    const changeClass = stock.price_change_percent >= 0 ? 'price-positive' : 'price-negative';
+                    const changeIcon = stock.price_change_percent >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                    
+                    html += `
+                        <div class="stock-row">
+                            <div>
+                                <strong>${stock.symbol}</strong>
+                                <small class="d-block text-muted">${stock.company_name}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">$${stock.current_price.toFixed(2)}</div>
+                                <div class="${changeClass}">
+                                    <i class="fas ${changeIcon}"></i>
+                                    ${stock.price_change_percent.toFixed(2)}%
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('stocksContainer').innerHTML = html;
+                updateMarketChart(stocks);
+                
+                // Update top gainer
+                const topGainer = stocks.reduce((max, stock) => 
+                    stock.price_change_percent > max.price_change_percent ? stock : max
+                );
+                document.getElementById('topGainer').textContent = topGainer.symbol;
+                
+            } catch (error) {
+                console.error('Error loading stocks:', error);
+            }
+        }
+
+        async function loadNewsData() {
+            try {
+                const response = await fetch('/api/news');
+                const news = await response.json();
+                
+                document.getElementById('totalNews').textContent = news.length;
+                
+                let html = '';
+                let sentimentSum = 0;
+                let positiveCount = 0, negativeCount = 0, neutralCount = 0;
+                
+                news.slice(0, 10).forEach(article => {
+                    const sentiment = article.sentiment_score;
+                    sentimentSum += sentiment;
+                    
+                    let sentimentClass, sentimentText, sentimentIcon;
+                    if (sentiment > 0.6) {
+                        sentimentClass = 'sentiment-positive';
+                        sentimentText = 'Positive';
+                        sentimentIcon = 'fa-smile';
+                        positiveCount++;
+                    } else if (sentiment < 0.4) {
+                        sentimentClass = 'sentiment-negative';
+                        sentimentText = 'Negative';
+                        sentimentIcon = 'fa-frown';
+                        negativeCount++;
+                    } else {
+                        sentimentClass = 'sentiment-neutral';
+                        sentimentText = 'Neutral';
+                        sentimentIcon = 'fa-meh';
+                        neutralCount++;
+                    }
+                    
+                    html += `
+                        <div class="news-item">
+                            <h6 class="mb-2">${article.title}</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">${article.source}</small>
+                                <span class="${sentimentClass}">
+                                    <i class="fas ${sentimentIcon}"></i>
+                                    ${sentimentText}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('newsContainer').innerHTML = html;
+                
+                // Update average sentiment
+                const avgSentiment = (sentimentSum / news.length * 100).toFixed(0);
+                document.getElementById('avgSentiment').textContent = avgSentiment + '%';
+                
+                updateSentimentChart(positiveCount, negativeCount, neutralCount);
+                
+            } catch (error) {
+                console.error('Error loading news:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const moversResponse = await fetch('/api/stocks/movers');
+                const movers = await moversResponse.json();
+                
+                // Additional stats can be loaded here
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function setupCharts() {
+            // Market Chart
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            marketChart = new Chart(marketCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Price Change %',
+                        data: [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e2e8f0' }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#a0aec0' }, grid: { color: '#2d3748' } },
+                        y: { ticks: { color: '#a0aec0' }, grid: { color: '#2d3748' } }
+                    }
+                }
+            });
+
+            // Sentiment Chart
+            const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+            sentimentChart = new Chart(sentimentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#38ef7d', '#fc466b', '#FDBB2D'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#e2e8f0', padding: 20 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateMarketChart(stocks) {
+            const labels = stocks.slice(0, 10).map(stock => stock.symbol);
+            const data = stocks.slice(0, 10).map(stock => stock.price_change_percent);
+            
+            marketChart.data.labels = labels;
+            marketChart.data.datasets[0].data = data;
+            marketChart.update();
+        }
+
+        function updateSentimentChart(positive, negative, neutral) {
+            sentimentChart.data.datasets[0].data = [positive, negative, neutral];
+            sentimentChart.update();
+        }
+
+        function refreshAllData() {
+            const refreshBtn = document.querySelector('.btn-gradient');
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            loadAllData().then(() => {
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                refreshBtn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

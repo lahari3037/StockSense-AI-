@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceAI - Portfolio Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --danger-gradient: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+            --warning-gradient: linear-gradient(135deg, #FDBB2D 0%, #22C1C3 100%);
+            --dark-bg: #0f1419;
+            --card-bg: #1a202c;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border-color: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: var(--primary-gradient) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            border: none;
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .hero-section {
+            background: var(--primary-gradient);
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,0 0,100 1000,80 1000,0"/></svg>');
+            background-size: cover;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .portfolio-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .profit-number {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .profit-positive {
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .profit-negative {
+            background: var(--danger-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            height: 400px;
+        }
+
+        .holding-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .holding-row:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(5px);
+        }
+
+        .gain-positive {
+            color: #38ef7d;
+        }
+
+        .gain-negative {
+            color: #fc466b;
+        }
+
+        .btn-gradient {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .btn-success-gradient {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(17, 153, 142, 0.3);
+            color: white;
+        }
+
+        .btn-danger-gradient {
+            background: var(--danger-gradient);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(252, 70, 107, 0.3);
+            color: white;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-control {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 10px;
+            padding: 0.75rem;
+        }
+
+        .form-control:focus {
+            background: var(--card-bg);
+            border-color: #667eea;
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #38ef7d;
+            display: inline-block;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 239, 125, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(56, 239, 125, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 239, 125, 0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .scrollbar-custom {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 3px;
+        }
+
+        .portfolio-summary {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .performance-badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .performance-positive {
+            background: rgba(56, 239, 125, 0.2);
+            color: #38ef7d;
+            border: 1px solid rgba(56, 239, 125, 0.3);
+        }
+
+        .performance-negative {
+            background: rgba(252, 70, 107, 0.2);
+            color: #fc466b;
+            border: 1px solid rgba(252, 70, 107, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-briefcase me-2"></i>FinanceAI Portfolio
+            </a>
+            <div class="d-flex">
+                <span class="status-indicator"></span>
+                <span class="text-white me-3">Live Data</span>
+                <button class="btn btn-outline-light btn-sm me-2" onclick="window.location.href='/'">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </button>
+                <button class="btn btn-gradient" onclick="refreshPortfolio()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <div class="row text-center">
+                <div class="col-12">
+                    <h1 class="display-4 fw-bold text-white mb-3">Portfolio Management</h1>
+                    <p class="lead text-white-50">Smart investment tracking • Real-time performance • AI-powered insights</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container-fluid">
+        <!-- Portfolio Summary -->
+        <div class="portfolio-summary fade-in">
+            <div class="row text-center">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-number" id="totalValue">$0.00</div>
+                    <div class="stat-label">Total Portfolio Value</div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-number" id="totalInvested">$0.00</div>
+                    <div class="stat-label">Total Invested</div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="profit-number" id="totalGainLoss">$0.00</div>
+                    <div class="stat-label">Total Gain/Loss</div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="profit-number" id="totalReturn">0.00%</div>
+                    <div class="stat-label">Total Return</div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <span class="performance-badge" id="performanceBadge">Portfolio Performance</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <h3 class="section-title"><i class="fas fa-chart-area me-2"></i>Portfolio Performance</h3>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <h3 class="section-title"><i class="fas fa-chart-pie me-2"></i>Asset Allocation</h3>
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Row -->
+        <div class="row">
+            <!-- Holdings Table -->
+            <div class="col-lg-8">
+                <div class="portfolio-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="section-title mb-0"><i class="fas fa-coins me-2"></i>Holdings</h3>
+                        <span class="badge bg-primary">Live Prices</span>
+                    </div>
+                    <div class="scrollbar-custom" id="holdingsContainer">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner"></div>
+                            <p class="mt-2 text-muted">Loading portfolio data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Stock Form -->
+            <div class="col-lg-4">
+                <div class="portfolio-card">
+                    <h3 class="section-title"><i class="fas fa-plus-circle me-2"></i>Add New Stock</h3>
+                    <form id="addStockForm">
+                        <div class="mb-3">
+                            <label class="form-label">Stock Symbol</label>
+                            <input type="text" class="form-control" id="stockSymbol" placeholder="e.g., AAPL" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="stockQuantity" placeholder="Number of shares" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Purchase Price</label>
+                            <input type="number" class="form-control" id="stockPrice" placeholder="Price per share" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-success-gradient w-100">
+                            <i class="fas fa-plus"></i> Add to Portfolio
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="portfolio-card">
+                    <h3 class="section-title"><i class="fas fa-bolt me-2"></i>Quick Actions</h3>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-gradient" onclick="updateAllPrices()">
+                            <i class="fas fa-refresh"></i> Update All Prices
+                        </button>
+                        <button class="btn btn-outline-light" onclick="exportPortfolio()">
+                            <i class="fas fa-download"></i> Export Portfolio
+                        </button>
+                        <button class="btn btn-outline-light" onclick="viewAnalytics()">
+                            <i class="fas fa-chart-bar"></i> Portfolio Analytics
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Performance Summary -->
+                <div class="portfolio-card">
+                    <h3 class="section-title"><i class="fas fa-trophy me-2"></i>Performance</h3>
+                    <div id="performanceSummary">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Best Performer:</span>
+                            <span class="gain-positive" id="bestPerformer">--</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Worst Performer:</span>
+                            <span class="gain-negative" id="worstPerformer">--</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Total Holdings:</span>
+                            <span id="totalHoldings">--</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Diversification:</span>
+                            <span id="diversification">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let performanceChart, allocationChart;
+        const userId = 1; // Default test user
+
+        // Initialize Portfolio
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPortfolio();
+            setupCharts();
+            setupEventListeners();
+            
+            // Auto-refresh every 60 seconds
+            setInterval(loadPortfolio, 60000);
+        });
+
+        function setupEventListeners() {
+            document.getElementById('addStockForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addStock();
+            });
+        }
+
+        async function loadPortfolio() {
+            try {
+                const response = await fetch(`/api/portfolio/${userId}`);
+                const data = await response.json();
+                
+                if (data.summary) {
+                    updatePortfolioSummary(data.summary);
+                    updateHoldingsTable(data.holdings);
+                    updatePerformanceSummary(data.holdings);
+                    updateCharts(data.holdings);
+                } else {
+                    // Show empty portfolio state
+                    showEmptyPortfolio();
+                }
+            } catch (error) {
+                console.error('Error loading portfolio:', error);
+                showEmptyPortfolio();
+            }
+        }
+
+        function updatePortfolioSummary(summary) {
+            document.getElementById('totalValue').textContent = `$${summary.total_current_value.toFixed(2)}`;
+            document.getElementById('totalInvested').textContent = `$${summary.total_invested.toFixed(2)}`;
+            
+            const gainLoss = summary.total_gain_loss;
+            const gainLossElement = document.getElementById('totalGainLoss');
+            const returnElement = document.getElementById('totalReturn');
+            const badgeElement = document.getElementById('performanceBadge');
+            
+            gainLossElement.textContent = `$${gainLoss.toFixed(2)}`;
+            returnElement.textContent = `${summary.total_gain_loss_percent.toFixed(2)}%`;
+            
+            if (gainLoss >= 0) {
+                gainLossElement.className = 'profit-number profit-positive';
+                returnElement.className = 'profit-number profit-positive';
+                badgeElement.className = 'performance-badge performance-positive';
+                badgeElement.innerHTML = '<i class="fas fa-arrow-up"></i> Portfolio Up';
+            } else {
+                gainLossElement.className = 'profit-number profit-negative';
+                returnElement.className = 'profit-number profit-negative';
+                badgeElement.className = 'performance-badge performance-negative';
+                badgeElement.innerHTML = '<i class="fas fa-arrow-down"></i> Portfolio Down';
+            }
+        }
+
+        function updateHoldingsTable(holdings) {
+            if (!holdings || holdings.length === 0) {
+                showEmptyHoldings();
+                return;
+            }
+
+            let html = '';
+            holdings.forEach(holding => {
+                const gainClass = holding.gain_loss >= 0 ? 'gain-positive' : 'gain-negative';
+                const gainIcon = holding.gain_loss >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                
+                html += `
+                    <div class="holding-row">
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <strong>${holding.symbol}</strong>
+                                    <small class="d-block text-muted">${holding.quantity} shares</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold">$${holding.purchase_price.toFixed(2)}</div>
+                            <small class="text-muted">Purchase</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold">$${holding.current_price.toFixed(2)}</div>
+                            <small class="text-muted">Current</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold">$${holding.current_value.toFixed(2)}</div>
+                            <small class="text-muted">Value</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="${gainClass} fw-bold">
+                                <i class="fas ${gainIcon}"></i>
+                                $${holding.gain_loss.toFixed(2)}
+                            </div>
+                            <div class="${gainClass}">
+                                ${holding.gain_loss_percent.toFixed(2)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('holdingsContainer').innerHTML = html;
+        }
+
+        function updatePerformanceSummary(holdings) {
+            if (!holdings || holdings.length === 0) return;
+
+            const bestPerformer = holdings.reduce((best, holding) => 
+                holding.gain_loss_percent > best.gain_loss_percent ? holding : best
+            );
+            
+            const worstPerformer = holdings.reduce((worst, holding) => 
+                holding.gain_loss_percent < worst.gain_loss_percent ? holding : worst
+            );
+
+            document.getElementById('bestPerformer').textContent = 
+                `${bestPerformer.symbol} (+${bestPerformer.gain_loss_percent.toFixed(2)}%)`;
+            document.getElementById('worstPerformer').textContent = 
+                `${worstPerformer.symbol} (${worstPerformer.gain_loss_percent.toFixed(2)}%)`;
+            document.getElementById('totalHoldings').textContent = holdings.length;
+            document.getElementById('diversification').textContent = 
+                holdings.length >= 10 ? 'Well Diversified' : 'Consider Diversifying';
+        }
+
+        function showEmptyPortfolio() {
+            document.getElementById('holdingsContainer').innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Holdings Yet</h5>
+                    <p class="text-muted">Add your first stock to start tracking your portfolio</p>
+                </div>
+            `;
+            
+            // Reset summary
+            document.getElementById('totalValue').textContent = '$0.00';
+            document.getElementById('totalInvested').textContent = '$0.00';
+            document.getElementById('totalGainLoss').textContent = '$0.00';
+            document.getElementById('totalReturn').textContent = '0.00%';
+        }
+
+        function showEmptyHoldings() {
+            showEmptyPortfolio();
+        }
+
+        async function addStock() {
+            const symbol = document.getElementById('stockSymbol').value.toUpperCase();
+            const quantity = parseInt(document.getElementById('stockQuantity').value);
+            const price = parseFloat(document.getElementById('stockPrice').value);
+            
+            if (!symbol || !quantity || !price) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/portfolio/add', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: userId,
+                        symbol: symbol,
+                        quantity: quantity,
+                        purchase_price: price
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.message) {
+                    // Clear form
+                    document.getElementById('addStockForm').reset();
+                    
+                    // Show success message
+                    showAlert('Stock added successfully!', 'success');
+                    
+                    // Reload portfolio
+                    loadPortfolio();
+                } else {
+                    showAlert('Error: ' + result.error, 'danger');
+                }
+            } catch (error) {
+                showAlert('Error adding stock', 'danger');
+            }
+        }
+
+        function setupCharts() {
+            // Performance Chart
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            performanceChart = new Chart(performanceCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e2e8f0' }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#a0aec0' }, grid: { color: '#2d3748' } },
+                        y: { ticks: { color: '#a0aec0' }, grid: { color: '#2d3748' } }
+                    }
+                }
+            });
+
+            // Allocation Chart
+            const allocationCtx = document.getElementById('allocationChart').getContext('2d');
+            allocationChart = new Chart(allocationCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#667eea', '#38ef7d', '#fc466b', '#FDBB2D', '#22C1C3',
+                            '#764ba2', '#11998e', '#3f5efb', '#F093FB', '#F5576C'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#e2e8f0', padding: 15 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts(holdings) {
+            if (!holdings || holdings.length === 0) return;
+
+            // Update allocation chart
+            const labels = holdings.map(h => h.symbol);
+            const data = holdings.map(h => h.current_value);
+            
+            allocationChart.data.labels = labels;
+            allocationChart.data.datasets[0].data = data;
+            allocationChart.update();
+
+            // Update performance chart (mock data for demo)
+            const performanceLabels = holdings.map(h => h.symbol);
+            const performanceData = holdings.map(h => h.gain_loss_percent);
+            
+            performanceChart.data.labels = performanceLabels;
+            performanceChart.data.datasets[0].data = performanceData;
+            performanceChart.update();
+        }
+
+        function refreshPortfolio() {
+            const refreshBtn = document.querySelector('.btn-gradient');
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            loadPortfolio().then(() => {
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                refreshBtn.disabled = false;
+            });
+        }
+
+        function updateAllPrices() {
+            showAlert('Updating all prices...', 'info');
+            fetch('/api/update-prices', {method: 'POST'})
+                .then(r => r.json())
+                .then(data => {
+                    showAlert('Prices updated successfully!', 'success');
+                    loadPortfolio();
+                })
+                .catch(error => {
+                    showAlert('Error updating prices', 'danger');
+                });
+        }
+
+        function exportPortfolio() {
+            showAlert('Export feature coming soon!', 'info');
+        }
+
+        function viewAnalytics() {
+            showAlert('Advanced analytics coming soon!', 'info');
+        }
+
+        function showAlert(message, type) {
+            // Create alert element
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
