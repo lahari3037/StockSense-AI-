@@ -23,6 +23,33 @@ StockSense AI tracks 500+ stocks in real-time, analyzes financial news using Azu
 **Frontend:** HTML/CSS/JavaScript, Chart.js, Bootstrap  
 **Infrastructure:** ETL Pipelines, Background Workers, REST APIs
 
+## Application Screenshots
+
+### Professional Dashboard Interface
+![Dashboard](screenshots/dashboard.png)
+
+The main dashboard showcases StockSense AI's comprehensive market intelligence capabilities:
+
+- **Real-time Market Metrics**: Live tracking showing 50 active stocks, 20 daily news articles, 25% average sentiment, and top gainer (GOOGL)
+- **Interactive Market Performance Chart**: Dynamic line graph displaying price movements and market trends with real-time data visualization
+- **AI Sentiment Analysis Visualization**: Professional donut chart showing market sentiment distribution with color-coded positive, negative, and neutral indicators
+- **Live Stock Data Feed**: Real-time table displaying major stocks (AAPL, AXA, AEMD, ABT, AMP, ALGN) with current prices, percentage changes, and color-coded performance indicators
+- **Intelligent News Analysis**: AI-powered financial news feed featuring sentiment-analyzed articles with topics including job market trends, credit analysis, and economic indicators
+- **Professional Dark Theme**: Optimized interface design for extended trading sessions with gradient backgrounds and modern UI elements
+
+### Advanced Portfolio Management System
+![Portfolio](screenshots/portfolio.png)
+
+The portfolio management interface demonstrates enterprise-grade investment tracking and analytics:
+
+- **Comprehensive Portfolio Overview**: Real-time display of total portfolio value ($4444.99), invested amount ($21842.50), current losses (-$17397.51), and performance percentage (-79.66%)
+- **Interactive Performance Charts**: Professional line graph showing portfolio performance trends and historical growth patterns
+- **Dynamic Asset Allocation Visualization**: Multi-colored pie chart displaying portfolio diversification across different sectors and investment categories
+- **Detailed Holdings Analysis**: Complete breakdown of individual stock positions including AAPL, GOOGL, and MSFT with purchase prices, current values, and gain/loss calculations
+- **Smart Portfolio Tools**: Quick action buttons for updating prices, portfolio analytics, and comprehensive performance tracking
+- **Add New Stock Interface**: Streamlined form for adding new positions with stock symbol, quantity, and purchase price validation
+- **Risk Assessment Metrics**: Performance summary showing best/worst performers, total holdings count, and diversification recommendations
+
 ## Quick Start
 
 ```bash
